@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Grove — Relationship Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0f1f3d;
+  --navy2:#1a3260;
+  --navy3:#234080;
+  --accent:#2563eb;
+  --accent2:#3b82f6;
+  --cream:#f8f6f1;
+  --cream2:#f0ede6;
+  --cream3:#e8e4db;
+  --text:#0f1f3d;
+  --text2:#4a5568;
+  --text3:#8a95a3;
+  --white:#ffffff;
+  --border:#ddd8ce;
+  --border2:#c8c3b8;
+  --r:12px;--rsm:8px;--rxl:16px;
+  --shadow:0 1px 3px rgba(15,31,61,.08),0 4px 12px rgba(15,31,61,.06);
+  --shadow-lg:0 8px 32px rgba(15,31,61,.12),0 2px 8px rgba(15,31,61,.08);
+}
+html{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+body{min-height:100vh;}
+
+/* ── ONBOARDING ── */
+#onboarding{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;}
+.ob-card{background:var(--white);border-radius:var(--rxl);border:1px solid var(--border);box-shadow:var(--shadow-lg);width:100%;max-width:520px;overflow:hidden;}
+.ob-header{background:var(--navy);padding:2rem 2rem 1.5rem;color:var(--white);}
+.ob-logo{font-family:'Syne',sans-serif;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;opacity:.6;margin-bottom:.5rem;}
+.ob-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:600;line-height:1.2;margin-bottom:.4rem;}
+.ob-sub{font-size:13px;opacity:.7;line-height:1.5;}
+.ob-steps{display:flex;gap:6px;margin-top:1.25rem;}
+.ob-dot{width:20px;height:3px;border-radius:2px;background:rgba(255,255,255,.25);transition:background .3s;}
+.ob-dot.on{background:var(--white);}
+.ob-body{padding:1.75rem 2rem;}
+.ob-panel{display:none;}.ob-panel.on{display:block;}
+.ob-label{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem;}
+.ob-input{width:100%;padding:10px 14px;border:1px solid var(--border2);border-radius:var(--rsm);font-size:15px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);outline:none;transition:border-color .15s;}
+.ob-input:focus{border-color:var(--accent);}
+.ob-import-opts{display:grid;gap:8px;margin-top:.25rem;}
+.ob-opt{border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.25rem;cursor:pointer;transition:all .15s;background:var(--white);text-align:left;}
+.ob-opt:hover{border-color:var(--accent2);background:#f0f6ff;}
+.ob-opt.selected{border-color:var(--accent);background:#eff6ff;}
+.ob-opt-title{font-size:14px;font-weight:500;margin-bottom:2px;}
+.ob-opt-sub{font-size:12px;color:var(--text3);}
+.ob-steps-list{counter-reset:steps;margin-top:.5rem;}
+.ob-step-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.ob-step-item:last-child{border-bottom:0;}
+.ob-step-num{width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--white);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ob-step-text{font-size:13px;line-height:1.5;color:var(--text2);}
+.ob-step-text strong{color:var(--text);font-weight:500;}
+.ob-step-path{font-size:12px;background:var(--cream2);border:1px solid var(--border);border-radius:4px;padding:3px 8px;display:inline-block;margin-top:4px;font-family:monospace;color:var(--navy2);}
+.ob-footer{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 2rem;border-top:1px solid var(--border);background:var(--cream);}
+.ob-note{font-size:12px;color:var(--text3);}
+.btn{padding:9px 18px;border-radius:var(--rsm);font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;}
+.btn-primary{background:var(--accent);color:var(--white);border-color:var(--accent);}
+.btn-primary:hover{background:#1d4ed8;}
+.btn-ghost{background:transparent;color:var(--text2);border-color:var(--border2);}
+.btn-ghost:hover{background:var(--cream2);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.drop-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:2rem;text-align:center;transition:all .2s;cursor:pointer;margin-top:.5rem;}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:#eff6ff;}
+.drop-zone-icon{font-size:28px;margin-bottom:.5rem;}
+.drop-zone-text{font-size:13px;color:var(--text2);line-height:1.5;}
+.drop-zone-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+#csv-input{display:none;}
+.import-preview{margin-top:1rem;background:var(--cream2);border-radius:var(--rsm);padding:.75rem 1rem;font-size:12px;color:var(--text2);}
+.import-preview strong{color:var(--text);}
+
+/* ── APP ── */
+#app{display:none;min-height:100vh;}
+.app-nav{background:var(--navy);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
+.app-brand{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--white);letter-spacing:.04em;}
+.app-brand span{opacity:.5;font-weight:400;margin-left:4px;}
+.app-nav-actions{display:flex;gap:8px;align-items:center;}
+.nav-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.8);transition:all .15s;}
+.nav-btn:hover{background:rgba(255,255,255,.1);color:var(--white);}
+.nav-btn.accent{background:var(--accent);border-color:var(--accent);color:var(--white);}
+.nav-btn.accent:hover{background:#1d4ed8;}
+.app-main{max-width:1080px;margin:0 auto;padding:2rem 1.5rem;}
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
+.page-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:600;line-height:1.1;}
+.page-sub{font-size:13px;color:var(--text3);margin-top:3px;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:1.5rem;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.25rem;box-shadow:var(--shadow);}
+.stat-label{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:.25rem;}
+.stat-val{font-size:24px;font-weight:500;font-family:'Syne',sans-serif;line-height:1;}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.stat-danger .stat-val{color:#dc2626;}
+.stat-active .stat-val{color:var(--accent);}
+.stat-warm .stat-val{color:#b45309;}
+.pipeline-bar{display:flex;gap:6px;margin-bottom:1.25rem;align-items:center;flex-wrap:wrap;}
+.stage-pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--white);color:var(--text2);transition:all .15s;white-space:nowrap;}
+.stage-pill:hover{border-color:var(--navy2);color:var(--navy);}
+.stage-pill.on{background:var(--navy);color:var(--white);border-color:var(--navy);}
+.stage-pill .cnt{font-size:10px;opacity:.6;margin-left:4px;}
+.search-input{padding:6px 12px;border:1px solid var(--border2);border-radius:20px;font-size:13px;font-family:'DM Sans',sans-serif;width:180px;outline:none;color:var(--text);background:var(--white);}
+.search-input:focus{border-color:var(--accent);}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;}
+.contact-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);}
+.contact-card:hover{border-color:var(--navy2);box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.contact-card.overdue-card{border-left:3px solid #dc2626;}
+.card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:.75rem;}
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;font-family:'Syne',sans-serif;}
+.av-0{background:#dbeafe;color:#1e40af;}
+.av-1{background:#d1fae5;color:#065f46;}
+.av-2{background:#fef3c7;color:#92400e;}
+.av-3{background:#ede9fe;color:#5b21b6;}
+.av-4{background:#fce7f3;color:#9d174d;}
+.av-5{background:#e0f2fe;color:#0c4a6e;}
+.contact-name{font-size:15px;font-weight:500;line-height:1.2;}
+.contact-role{font-size:12px;color:var(--text3);margin-top:2px;}
+.contact-email{font-size:11px;color:var(--accent);margin-top:1px;}
+.card-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.6rem;}
+.badge{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500;}
+.badge-new{background:#f1f5f9;color:#475569;}
+.badge-warm{background:#fef3c7;color:#92400e;}
+.badge-active{background:#dbeafe;color:#1e40af;}
+.badge-outcome{background:#d1fae5;color:#065f46;}
+.health-row{display:flex;align-items:center;gap:8px;margin-bottom:.5rem;}
+.health-bar{flex:1;height:4px;border-radius:2px;background:var(--cream2);overflow:hidden;}
+.health-fill{height:100%;border-radius:2px;transition:width .5s;}
+.hf-green{background:#16a34a;}
+.hf-amber{background:#d97706;}
+.hf-red{background:#dc2626;}
+.health-score-text{font-size:11px;font-weight:500;min-width:30px;text-align:right;}
+.hs-green{color:#16a34a;}.hs-amber{color:#d97706;}.hs-red{color:#dc2626;}
+.card-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);}
+.next-action{font-size:12px;color:var(--text2);margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--cream3);display:flex;gap:6px;align-items:flex-start;line-height:1.4;}
+.next-dot{width:6px;height:6px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.nd-green{background:#16a34a;}.nd-amber{background:#d97706;}.nd-red{background:#dc2626;}
+.hook-text{font-size:11px;color:var(--text3);margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--cream3);line-height:1.4;}
+.empty-state{grid-column:1/-1;text-align:center;padding:3rem 1rem;color:var(--text3);}
+.empty-state-icon{font-size:32px;margin-bottom:.75rem;}
+.empty-title{font-size:15px;font-weight:500;color:var(--text2);margin-bottom:.25rem;}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,31,61,.5);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:var(--rxl);border:1px solid var(--border);box-shadow:var(--shadow-lg);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:1.25rem 1.5rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;}
+.modal-close{background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3);padding:2px;line-height:1;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:1.25rem 1.5rem;}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--cream);}
+.field{margin-bottom:.9rem;}
+.field-label{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:.35rem;display:block;}
+.field input,.field select,.field textarea{width:100%;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--rsm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+.field textarea{resize:vertical;min-height:56px;line-height:1.5;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.del-btn{background:none;border:none;cursor:pointer;font-size:12px;color:#dc2626;padding:0;font-family:'DM Sans',sans-serif;}
+.del-btn:hover{text-decoration:underline;}
+
+/* ── IMPORT MODAL ── */
+.import-step{display:none;}.import-step.on{display:block;}
+.guide-steps{margin:.75rem 0;}
+.guide-item{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--cream3);}
+.guide-item:last-child{border-bottom:0;}
+.guide-num{width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--white);font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.guide-text{font-size:13px;line-height:1.5;color:var(--text2);}
+.guide-text strong{color:var(--text);font-weight:500;}
+.guide-path{font-size:11px;background:var(--cream2);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-family:monospace;color:var(--navy2);display:inline-block;margin-top:3px;}
+.import-source-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--rsm);overflow:hidden;margin-bottom:1rem;}
+.ist{padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:var(--white);color:var(--text2);font-family:'DM Sans',sans-serif;flex:1;transition:all .15s;}
+.ist:not(:last-child){border-right:1px solid var(--border);}
+.ist.on{background:var(--navy);color:var(--white);}
+.source-panel{display:none;}.source-panel.on{display:block;}
+.csv-columns{font-size:11px;color:var(--text3);margin-top:.5rem;line-height:1.6;}
+.csv-columns code{background:var(--cream2);padding:1px 5px;border-radius:3px;font-family:monospace;color:var(--navy2);}
+
+/* ── ALERTS ── */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--white);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ ONBOARDING ═══════════════════ -->
+<div id="onboarding">
+<div class="ob-card">
+  <div class="ob-header">
+    <div class="ob-logo">Grove — built for legal professionals</div>
+    <div class="ob-title" id="ob-title">Your professional network, tended.</div>
+    <div class="ob-sub" id="ob-sub">Grove is a relationship pipeline for lawyers. Track your contacts across in-house, firm, and government — and never let an important relationship go cold.</div>
+    <div class="ob-steps" id="ob-steps-dots">
+      <div class="ob-dot on" id="odot-0"></div>
+      <div class="ob-dot" id="odot-1"></div>
+      <div class="ob-dot" id="odot-2"></div>
+    </div>
+  </div>
+
+  <div class="ob-body">
+    <!-- Step 0: Name -->
+    <div class="ob-panel on" id="ob-0">
+      <div class="ob-label">What should we call your workspace?</div>
+      <input class="ob-input" id="workspace-name" placeholder="e.g. My Network, DC Bar, National Security Practice" maxlength="40"/>
+      <p style="font-size:12px;color:var(--text3);margin-top:.6rem;">This appears in the top nav. You can change it any time.</p>
+    </div>
+
+    <!-- Step 1: Import method -->
+    <div class="ob-panel" id="ob-1">
+      <div class="ob-label">How do you want to add your contacts?</div>
+      <div class="ob-import-opts">
+        <div class="ob-opt selected" id="opt-linkedin" onclick="selectImport('linkedin')">
+          <div class="ob-opt-title">Import from LinkedIn</div>
+          <div class="ob-opt-sub">Export your connections as a CSV — takes about 5 minutes. Step-by-step guide included.</div>
+        </div>
+        <div class="ob-opt" id="opt-csv" onclick="selectImport('csv')">
+          <div class="ob-opt-title">Import any CSV</div>
+          <div class="ob-opt-sub">Upload any spreadsheet with contact data. We'll map the columns automatically.</div>
+        </div>
+        <div class="ob-opt" id="opt-manual" onclick="selectImport('manual')">
+          <div class="ob-opt-title">Start manually</div>
+          <div class="ob-opt-sub">Add contacts one by one. You can always import a CSV later.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Import action -->
+    <div class="ob-panel" id="ob-2">
+      <!-- LinkedIn guide -->
+      <div id="guide-linkedin">
+        <div class="ob-label">Export your LinkedIn connections</div>
+        <div class="ob-steps-list">
+          <div class="ob-step-item">
+            <div class="ob-step-num">1</div>
+            <div class="ob-step-text">Go to <strong>linkedin.com</strong> and sign in.</div>
+          </div>
+          <div class="ob-step-item">
+            <div class="ob-step-num">2</div>
+            <div class="ob-step-text">Click your profile photo → <strong>Settings &amp; Privacy</strong></div>
+          </div>
+          <div class="ob-step-item">
+            <div class="ob-step-num">3</div>
+            <div class="ob-step-text">Go to <strong>Data Privacy</strong> → <strong>Get a copy of your data</strong></div>
+          </div>
+          <div class="ob-step-item">
+            <div class="ob-step-num">4</div>
+            <div class="ob-step-text">Select <strong>Connections</strong> only (faster — arrives in ~10 min), then click <strong>Request archive</strong></div>
+          </div>
+          <div class="ob-step-item">
+            <div class="ob-step-num">5</div>
+            <div class="ob-step-text">LinkedIn emails you a download link. Open it, download the ZIP, and find <strong>Connections.csv</strong> inside.</div>
+          </div>
+          <div class="ob-step-item">
+            <div class="ob-step-num">6</div>
+            <div class="ob-step-text">Drop the CSV file below.</div>
+          </div>
+        </div>
+        <div class="drop-zone" id="drop-li" onclick="document.getElementById('csv-input-li').click()" ondragover="dragOver(event,'drop-li')" ondragleave="dragLeave('drop-li')" ondrop="handleDrop(event,'li')">
+          <div class="drop-zone-icon">📄</div>
+          <div class="drop-zone-text">Drop <strong>Connections.csv</strong> here, or click to browse</div>
+          <div class="drop-zone-sub">LinkedIn export format · First Name, Last Name, Email, Company, Position, Connected On</div>
+        </div>
+        <input type="file" id="csv-input-li" accept=".csv" onchange="handleFile(event,'li')"/>
+        <div id="preview-li"></div>
+      </div>
+
+      <!-- Generic CSV guide -->
+      <div id="guide-csv" style="display:none;">
+        <div class="ob-label">Import a CSV file</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:.75rem;line-height:1.5;">Upload any CSV with contact data. We'll automatically detect columns for name, company, role, and email. The more columns you have, the better.</p>
+        <div class="csv-columns">Recognized column names: <code>name</code> <code>first name</code> <code>last name</code> <code>company</code> <code>organization</code> <code>title</code> <code>position</code> <code>role</code> <code>email</code> <code>connected on</code></div>
+        <div class="drop-zone" id="drop-csv" style="margin-top:.75rem;" onclick="document.getElementById('csv-input-gen').click()" ondragover="dragOver(event,'drop-csv')" ondragleave="dragLeave('drop-csv')" ondrop="handleDrop(event,'gen')">
+          <div class="drop-zone-icon">📊</div>
+          <div class="drop-zone-text">Drop your CSV here, or click to browse</div>
+          <div class="drop-zone-sub">Any spreadsheet exported as .csv</div>
+        </div>
+        <input type="file" id="csv-input-gen" accept=".csv" onchange="handleFile(event,'gen')"/>
+        <div id="preview-gen"></div>
+      </div>
+
+      <!-- Manual -->
+      <div id="guide-manual" style="display:none;">
+        <div class="ob-label">Start with an empty workspace</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:.75rem;">You'll add contacts one by one using the <strong>+ Add contact</strong> button. You can always import a CSV later from the nav bar.</p>
+        <div style="background:var(--cream2);border-radius:var(--rsm);padding:.9rem 1rem;font-size:12px;color:var(--text2);line-height:1.6;">
+          <strong style="color:var(--text);">Tip:</strong> Start with 10–15 key contacts and tag them with a pipeline stage (New → Warm → Active → Outcome). The health score system works best when you log your first touchpoint date.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ob-footer">
+    <div class="ob-note" id="ob-note">Step 1 of 3</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" id="ob-back" style="display:none" onclick="obBack()">Back</button>
+      <button class="btn btn-primary" id="ob-next" onclick="obNext()">Get started →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════ APP ═══════════════════ -->
+<div id="app">
+  <nav class="app-nav">
+    <div class="app-brand">Grove <span id="wlabel"></span></div>
+    <div class="app-nav-actions">
+      <div style="display:flex;gap:0;margin-right:8px;">
+        <button class="nav-btn" id="navtab-contacts" onclick="showView('contacts',this)" style="border-radius:6px 0 0 6px;border-right:0;background:rgba(255,255,255,.15);color:var(--white);">Contacts</button>
+        <button class="nav-btn" id="navtab-plan" onclick="showView('plan',this)" style="border-radius:0;border-right:0;">Weekly Plan</button>
+        <button class="nav-btn" id="navtab-gatherings" onclick="showView('gatherings',this)" style="border-radius:0 6px 6px 0;">Gatherings</button>
+      </div>
+      <button class="nav-btn" onclick="openImportModal()">Import CSV</button>
+      <button class="nav-btn" onclick="exportData()" title="Download all your data as a backup file">Export data</button>
+      <button class="nav-btn" onclick="document.getElementById('import-data-input').click()" title="Restore from a backup file">Import data</button>
+      <input type="file" id="import-data-input" accept=".json" style="display:none" onchange="importData(event)"/>
+      <button class="nav-btn accent" onclick="openAddModal()">+ Add contact</button>
+    </div>
+  </nav>
+
+  <main class="app-main">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="page-title">Contacts</div>
+        <div class="page-sub" id="page-sub">Your relationship pipeline</div>
+      </div>
+      <input class="search-input" type="text" placeholder="Search contacts…" oninput="setSearch(this.value)" id="search-box"/>
+    </div>
+
+    <div id="filter-bar" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+      <select id="loc-filter" onchange="setLocFilter(this.value)" style="padding:6px 10px;border:1px solid var(--border2);border-radius:20px;font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);cursor:pointer;max-width:180px;">
+        <option value="">All locations</option>
+      </select>
+      <select id="sort-by" onchange="setSortBy(this.value)" style="padding:6px 10px;border:1px solid var(--border2);border-radius:20px;font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);cursor:pointer;">
+        <option value="health">Sort: needs attention first</option>
+        <option value="name">Sort: name A–Z</option>
+        <option value="rel">Sort: relationship depth</option>
+        <option value="recent">Sort: recently contacted</option>
+        <option value="stage">Sort: pipeline stage</option>
+      </select>
+      <div id="trip-banner" style="display:none;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;background:#fef3c7;color:#92400e;display:none;align-items:center;gap:6px;">
+        <span>✈</span><span id="trip-label"></span><button onclick="clearLocFilter()" style="background:none;border:none;cursor:pointer;font-size:14px;color:#92400e;padding:0;line-height:1;margin-left:2px;">×</button>
+      </div>
+      <button id="clear-filters-btn" onclick="clearAllFilters()" style="display:none;padding:5px 12px;border-radius:20px;font-size:12px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text2);">Clear filters</button>
+    </div>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="pipeline-bar" id="pipeline-bar"></div>
+
+    <div class="contact-grid" id="contact-grid"></div>
+    </div>
+
+    <!-- WEEKLY PLAN VIEW -->
+    <div id="view-plan" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div class="page-title">Weekly outreach plan</div>
+          <div class="page-sub">A personalised mix of touchpoints for the week</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button onclick="shiftWeek(-1)" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--bg);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;">&#8249;</button>
+            <span id="week-label" style="font-size:14px;font-weight:500;min-width:150px;text-align:center;">This week</span>
+            <button onclick="shiftWeek(1)" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--bg);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;">&#8250;</button>
+          </div>
+          <select id="plan-intensity" style="padding:7px 12px;border:1px solid var(--border2);border-radius:var(--border-radius-md);font-size:13px;font-family:inherit;background:var(--bg);color:var(--text);">
+            <option value="light">Light (3–4 touchpoints)</option>
+            <option value="normal" selected>Normal (5–7 touchpoints)</option>
+            <option value="intensive">Intensive (8–10 touchpoints)</option>
+          </select>
+          <button id="gen-plan-btn" onclick="generatePlan()" style="padding:8px 18px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;background:var(--navy, #0f1f3d);color:#fff;border:none;display:flex;align-items:center;gap:8px;transition:opacity .15s;">
+            <span id="gen-spinner" style="display:none;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;"></span>
+            <span id="gen-label">Generate plan</span>
+          </button>
+        </div>
+      </div>
+      <div id="plan-output"></div>
+    </div>
+
+    <!-- ══════════ GATHERINGS VIEW ══════════ -->
+    <div id="view-gatherings" style="display:none;">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div class="page-title">Gatherings</div>
+          <div class="page-sub">Put the right people in the same room</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openNewGathering()">+ New gathering</button>
+      </div>
+      <div id="gatherings-list"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════ TOUCHPOINT LOG MODAL ══════════ -->
+<div class="modal-overlay" id="touchpoint-modal">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:360px;">
+    <div class="modal-header">
+      <div class="modal-title" id="tp-title">Log touchpoint</div>
+      <button class="modal-close" onclick="closeModal('touchpoint-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label class="field-label">Date</label><input type="date" id="tp-date"/></div>
+      <div class="field"><label class="field-label">How did you connect?</label>
+        <select id="tp-type">
+          <option value="coffee">Coffee</option>
+          <option value="lunch">Lunch</option>
+          <option value="call">Call</option>
+          <option value="email">Email</option>
+          <option value="text">Text / message</option>
+          <option value="event">Event / conference</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field"><label class="field-label">Quick note (optional)</label><textarea id="tp-note" placeholder="What did you discuss? Any follow-ups?" style="min-height:72px;"></textarea></div>
+    </div>
+    <div class="modal-footer" style="justify-content:flex-end;">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('touchpoint-modal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveTouchpoint()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ GATHERING GENERATOR MODAL ══════════ -->
+<div class="modal-overlay" id="gathering-modal">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title" id="gm-title">New gathering</div>
+      <button class="modal-close" onclick="closeModal('gathering-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row" style="margin-bottom:.9rem;">
+        <div class="field" style="margin:0;"><label class="field-label">Occasion</label>
+          <select id="gm-type">
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="happy hour">Happy hour</option>
+            <option value="breakfast">Breakfast</option>
+            <option value="coffee">Coffee / informal</option>
+            <option value="reception">Reception / larger gathering</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0;"><label class="field-label">Group size</label>
+          <select id="gm-size">
+            <option value="4–6">Intimate (4–6)</option>
+            <option value="6–8" selected>Small group (6–8)</option>
+            <option value="8–12">Medium (8–12)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label class="field-label">Purpose or theme</label><input id="gm-purpose" placeholder="e.g. AI policy discussion, export controls update, job search support, cross-sector connection"/></div>
+      <div class="field"><label class="field-label">Location / city (optional)</label><input id="gm-location" placeholder="e.g. Washington D.C. — only invite people in this city"/></div>
+      <div class="field"><label class="field-label">Any must-include contacts?</label><input id="gm-mustinclude" placeholder="Names of people who should definitely be there"/></div>
+      <div class="field"><label class="field-label">Anything else to consider?</label><textarea id="gm-context" placeholder="e.g. mix of seniority levels, avoid including competing firms, focus on women in national security law…" style="min-height:64px;"></textarea></div>
+    </div>
+    <div class="modal-footer" style="justify-content:flex-end;">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('gathering-modal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="gm-gen-btn" onclick="generateGathering()">
+        <span id="gm-spinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px;"></span>
+        <span id="gm-btn-label">Generate guest list</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes spin{to{transform:rotate(360deg);}}
+.plan-item{display:flex;align-items:flex-start;gap:12px;padding:.65rem 1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);transition:background .15s;}
+.plan-item:last-child{border-bottom:0;}
+.plan-item:hover{background:var(--color-background-secondary);}
+.plan-item.item-done{opacity:.45;}
+.plan-item.item-done .pi-name{text-decoration:line-through;}
+.pi-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--color-border-secondary);cursor:pointer;flex-shrink:0;margin-top:3px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:10px;background:transparent;}
+.pi-check:hover{border-color:var(--color-border-info);}
+.pi-check.is-done{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info);}
+.type-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em;margin-top:3px;}
+.type-text{background:#ede9fe;color:#5b21b6;}
+.type-coffee{background:#fef3c7;color:#92400e;}
+.type-lunch{background:#d1fae5;color:#065f46;}
+.type-email{background:#dbeafe;color:#1e40af;}
+.type-linkedin{background:#e0f2fe;color:#0c4a6e;}
+.type-call{background:#fce7f3;color:#9d174d;}
+@media(prefers-color-scheme:dark){
+  .type-text{background:#26215C;color:#CECBF6;}
+  .type-coffee{background:#412402;color:#FAC775;}
+  .type-lunch{background:#04342C;color:#9FE1CB;}
+  .type-email{background:#042C53;color:#B5D4F4;}
+  .type-linkedin{background:#042C53;color:#85B7EB;}
+  .type-call{background:#4B1528;color:#ED93B1;}
+}
+</style>
+
+<!-- ═══════════════════ CONTACT MODAL ═══════════════════ -->
+<div class="modal-overlay" id="contact-modal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="cm-title">Add contact</div>
+      <button class="modal-close" onclick="closeModal('contact-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row" style="margin-bottom:.9rem;">
+        <div class="field" style="margin:0;"><label class="field-label">First name *</label><input id="f-first" placeholder="Jane"/></div>
+        <div class="field" style="margin:0;"><label class="field-label">Last name</label><input id="f-last" placeholder="Smith"/></div>
+      </div>
+      <div class="field-row" style="margin-bottom:.9rem;">
+        <div class="field" style="margin:0;"><label class="field-label">Company</label><input id="f-company" placeholder="Acme Corp"/></div>
+        <div class="field" style="margin:0;"><label class="field-label">Role / title</label><input id="f-role" placeholder="General Counsel"/></div>
+      </div>
+      <div class="field"><label class="field-label">Email</label><input id="f-email" type="email" placeholder="jane@acme.com"/></div>
+      <div class="field-row" style="margin-bottom:.9rem;">
+        <div class="field" style="margin:0;"><label class="field-label">Contact type</label>
+          <select id="f-type">
+            <option value="">Unknown</option>
+            <option value="in-house">In-house</option>
+            <option value="law-firm">Law firm</option>
+            <option value="government">Government</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0;"><label class="field-label">Relationship</label>
+          <select id="f-rel">
+            <option value="">Not set</option>
+            <option value="friend">Friend / trust</option>
+            <option value="colleague">Colleague</option>
+            <option value="acquaintance">Acquaintance</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label class="field-label">Former employer(s)</label><input id="f-former" placeholder="e.g. DOJ, Sheppard Mullin"/></div>
+      <div class="field"><label class="field-label">Location</label><input id="f-location" placeholder="e.g. Washington D.C."/></div>
+      <div class="field"><label class="field-label">Met at / source</label><input id="f-event" placeholder="e.g. GCO Annual 2025, Perplexity intro via Julie"/></div>
+      <div class="field-row" style="margin-bottom:.9rem;">
+        <div class="field" style="margin:0;"><label class="field-label">Referred by</label><input id="f-referredby" placeholder="Who brought them into your network"/></div>
+        <div class="field" style="margin:0;"><label class="field-label">Introduced me to</label><input id="f-intros" placeholder="Who you've connected them with"/></div>
+      </div>
+      <div class="field"><label class="field-label">How do I know this person?</label><textarea id="f-origin" placeholder="e.g. Former colleague at DOJ, met at GCO conference 2023, introduced by Sarah Chen…"></textarea></div>
+      <div class="field"><label class="field-label">Shared hook / talking points</label><textarea id="f-hook" placeholder="e.g. Both worked on export controls, mutual interest in AI regulation, she introduced me to Alison"></textarea></div>
+      <div class="field-row" style="margin-bottom:.9rem;">
+        <div class="field" style="margin:0;"><label class="field-label">Pipeline stage</label>
+          <select id="f-stage">
+            <option value="new">New</option>
+            <option value="warm">Warm</option>
+            <option value="active">Active</option>
+            <option value="outcome">Outcome</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0;"><label class="field-label">Last contacted</label><input type="date" id="f-date"/></div>
+      </div>
+      <div class="field"><label class="field-label">Next action</label><input id="f-next" placeholder="e.g. Follow up on intro, schedule coffee chat"/></div>
+      <div class="field"><label class="field-label">Interests / notes</label><textarea id="f-notes" placeholder="Topics they care about, recent news, conversation starters, anything worth remembering…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="del-btn" id="cm-delete" onclick="deleteContact()" style="display:none">Delete contact</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('contact-modal')">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="saveContact()" id="cm-save">Save contact</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ IMPORT MODAL ═══════════════════ -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">Import contacts</div>
+      <button class="modal-close" onclick="closeModal('import-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="import-source-tabs">
+        <button class="ist on" onclick="switchImportTab('li',this)">LinkedIn CSV</button>
+        <button class="ist" onclick="switchImportTab('gen',this)">Any CSV</button>
+      </div>
+
+      <div class="source-panel on" id="imp-li">
+        <div class="guide-steps">
+          <div class="guide-item"><div class="guide-num">1</div><div class="guide-text">Go to <strong>linkedin.com → Me → Settings &amp; Privacy</strong></div></div>
+          <div class="guide-item"><div class="guide-num">2</div><div class="guide-text"><strong>Data Privacy → Get a copy of your data → Connections</strong></div></div>
+          <div class="guide-item"><div class="guide-num">3</div><div class="guide-text">Click <strong>Request archive</strong> — LinkedIn emails you a download link (~10 min)</div></div>
+          <div class="guide-item"><div class="guide-num">4</div><div class="guide-text">Unzip the download and find <strong>Connections.csv</strong></div></div>
+        </div>
+        <div class="drop-zone" id="drop-imp-li" onclick="document.getElementById('csv-imp-li').click()" ondragover="dragOver(event,'drop-imp-li')" ondragleave="dragLeave('drop-imp-li')" ondrop="handleDrop(event,'imp-li')">
+          <div class="drop-zone-icon">📄</div>
+          <div class="drop-zone-text">Drop <strong>Connections.csv</strong> here</div>
+          <div class="drop-zone-sub">LinkedIn format · First Name, Last Name, Email, Company, Position</div>
+        </div>
+        <input type="file" id="csv-imp-li" accept=".csv" onchange="handleFile(event,'imp-li')"/>
+        <div id="preview-imp-li"></div>
+      </div>
+
+      <div class="source-panel" id="imp-gen">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:.75rem;line-height:1.5;">Upload any CSV. We'll try to match columns automatically.</p>
+        <div class="csv-columns" style="margin-bottom:.75rem;">Recognized: <code>name</code> <code>first name</code> <code>last name</code> <code>company</code> <code>title</code> <code>position</code> <code>role</code> <code>email</code></div>
+        <div class="drop-zone" id="drop-imp-gen" onclick="document.getElementById('csv-imp-gen').click()" ondragover="dragOver(event,'drop-imp-gen')" ondragleave="dragLeave('drop-imp-gen')" ondrop="handleDrop(event,'imp-gen')">
+          <div class="drop-zone-icon">📊</div>
+          <div class="drop-zone-text">Drop your CSV here</div>
+        </div>
+        <input type="file" id="csv-imp-gen" accept=".csv" onchange="handleFile(event,'imp-gen')"/>
+        <div id="preview-imp-gen"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span class="ob-note" id="import-count"></span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('import-modal')">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="import-confirm" onclick="confirmImport()" disabled>Import contacts</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ─────────────────────────────────────────────
+const STORAGE='grove_v1';
+let state={
+  workspace:'My Network',
+  contacts:[],
+  filter:'all',
+  typeFilter:'',
+  relFilter:'',
+  eventFilter:'',
+  locationFilter:'',
+  sortBy:'health',
+  search:'',
+  editId:null,
+  pendingImport:[],
+  gatherings:[]
+};
+
+function persist(){try{localStorage.setItem(STORAGE,JSON.stringify(state));}catch(e){}}
+function hydrate(){try{const s=localStorage.getItem(STORAGE);if(s){const d=JSON.parse(s);Object.assign(state,d);}}catch(e){}}
+
+// ─── ONBOARDING ────────────────────────────────────────
+let obStep=0;
+let importMethod='linkedin';
+
+function updateObDots(){
+  [0,1,2].forEach(i=>{
+    document.getElementById('odot-'+i).classList.toggle('on',i<=obStep);
+  });
+  document.getElementById('ob-note').textContent='Step '+(obStep+1)+' of 3';
+  document.getElementById('ob-back').style.display=obStep>0?'':'none';
+}
+
+function selectImport(m){
+  importMethod=m;
+  ['linkedin','csv','manual'].forEach(k=>{
+    document.getElementById('opt-'+k).classList.toggle('selected',k===m);
+  });
+}
+
+function obNext(){
+  if(obStep===0){
+    const name=document.getElementById('workspace-name').value.trim();
+    state.workspace=name||'My Network';
+    obStep=1;
+    document.getElementById('ob-0').classList.remove('on');
+    document.getElementById('ob-1').classList.add('on');
+    document.getElementById('ob-title').textContent='How do you want to add contacts?';
+    document.getElementById('ob-sub').textContent='You can always change this later or switch methods from the nav bar.';
+    updateObDots();
+  } else if(obStep===1){
+    obStep=2;
+    document.getElementById('ob-1').classList.remove('on');
+    document.getElementById('ob-2').classList.add('on');
+    showObImportGuide();
+    if(importMethod==='manual'){
+      document.getElementById('ob-next').textContent='Launch app →';
+      document.getElementById('ob-title').textContent='Ready to go.';
+      document.getElementById('ob-sub').textContent='Your workspace is empty. Add contacts using the + button once you\'re in.';
+    } else {
+      document.getElementById('ob-title').textContent='Import your contacts.';
+      document.getElementById('ob-sub').textContent='Follow the steps below, then drop your CSV file.';
+      document.getElementById('ob-next').textContent='Skip for now →';
+    }
+    updateObDots();
+  } else {
+    launchApp();
+  }
+}
+
+function obBack(){
+  if(obStep===1){
+    obStep=0;
+    document.getElementById('ob-1').classList.remove('on');
+    document.getElementById('ob-0').classList.add('on');
+    document.getElementById('ob-title').textContent='Your professional network, tended.';
+    document.getElementById('ob-sub').textContent='Grove is a relationship pipeline for lawyers. Track your contacts across in-house, firm, and government — and never let an important relationship go cold.';
+    document.getElementById('ob-next').textContent='Get started →';
+  } else if(obStep===2){
+    obStep=1;
+    document.getElementById('ob-2').classList.remove('on');
+    document.getElementById('ob-1').classList.add('on');
+    document.getElementById('ob-title').textContent='How do you want to add contacts?';
+    document.getElementById('ob-next').textContent='Continue →';
+  }
+  updateObDots();
+}
+
+function showObImportGuide(){
+  ['guide-linkedin','guide-csv','guide-manual'].forEach(id=>document.getElementById(id).style.display='none');
+  const map={linkedin:'guide-linkedin',csv:'guide-csv',manual:'guide-manual'};
+  document.getElementById(map[importMethod]).style.display='';
+}
+
+function launchApp(){
+  persist();
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('wlabel').textContent=state.workspace;
+  document.getElementById('page-sub').textContent=state.workspace+' · relationship pipeline';
+  const so=document.getElementById('sort-by');if(so&&state.sortBy)so.value=state.sortBy;
+  if(state.locationFilter){
+    const banner=document.getElementById('trip-banner'),label=document.getElementById('trip-label');
+    if(banner&&label){banner.style.display='flex';label.textContent=state.locationFilter+' contacts';}
+  }
+  renderApp();
+  updateClearBtn();
+}
+
+// ─── CSV PARSING ────────────────────────────────────────
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/);
+  if(lines.length<2)return[];
+  const headers=lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+  return lines.slice(1).filter(l=>l.trim()).map(line=>{
+    const vals=parseCSVLine(line);
+    const row={};
+    headers.forEach((h,i)=>row[h]=vals[i]||'');
+    return row;
+  });
+}
+
+function parseCSVLine(line){
+  const result=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){result.push(cur.trim());cur='';}
+    else cur+=c;
+  }
+  result.push(cur.trim());
+  return result.map(v=>v.replace(/^"|"$/g,''));
+}
+
+function rowToContact(row,isLinkedIn){
+  const fn=row['first name']||row['firstname']||'';
+  const ln=row['last name']||row['lastname']||row['surname']||'';
+  const name=row['name']||(fn+' '+ln).trim()||'Unknown';
+  const company=row['company']||row['organization']||row['employer']||'';
+  const role=row['position']||row['title']||row['role']||row['job title']||'';
+  const email=row['email address']||row['email']||'';
+  const connectedOn=row['connected on']||'';
+  let lastContacted='';
+  if(connectedOn){
+    try{
+      const d=new Date(connectedOn);
+      if(!isNaN(d))lastContacted=d.toISOString().split('T')[0];
+    }catch(e){}
+  }
+  return{id:Date.now()+Math.random(),name:name.trim(),company,role,email,hook:'',stage:'new',lastContacted,nextAction:'',notes:''};
+}
+
+let pendingImport=[];
+
+function handleFile(e,key){
+  const file=e.target.files[0];if(!file)return;
+  processFile(file,key);
+}
+
+function handleDrop(e,key){
+  e.preventDefault();
+  dragLeave(e.currentTarget.id||'');
+  const file=e.dataTransfer.files[0];if(!file)return;
+  processFile(file,key);
+}
+
+function processFile(file,key){
+  const isLI=key==='li'||key==='imp-li';
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const rows=parseCSV(ev.target.result);
+    const contacts=rows.map(r=>rowToContact(r,isLI)).filter(c=>c.name&&c.name!=='Unknown');
+    pendingImport=contacts;
+    const previewId='preview-'+(key==='li'?'li':key==='gen'?'gen':key==='imp-li'?'imp-li':'imp-gen');
+    const previewEl=document.getElementById(previewId);
+    if(previewEl){
+      previewEl.innerHTML=`<div class="import-preview">Found <strong>${contacts.length} contacts</strong> in ${file.name}. ${contacts.slice(0,3).map(c=>c.name).join(', ')}${contacts.length>3?' and more…':''}</div>`;
+    }
+    // If in onboarding
+    if(key==='li'||key==='gen'){
+      document.getElementById('ob-next').textContent='Import '+contacts.length+' contacts →';
+      state.pendingImport=contacts;
+    } else {
+      document.getElementById('import-count').textContent=contacts.length+' contacts ready to import';
+      document.getElementById('import-confirm').disabled=false;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function dragOver(e,id){e.preventDefault();document.getElementById(id)&&document.getElementById(id).classList.add('drag-over');}
+function dragLeave(id){document.getElementById(id)&&document.getElementById(id).classList.remove('drag-over');}
+
+// ─── APP RENDERING ──────────────────────────────────────
+const today=new Date();
+function daysSince(ds){
+  if(!ds)return 9999;
+  const d=new Date(ds);
+  return Math.floor((today-d)/(1000*60*60*24));
+}
+const STAGE_FREQ={new:60,warm:30,active:14,outcome:90};
+const STAGE_LABELS={new:'New',warm:'Warm',active:'Active',outcome:'Outcome'};
+
+function healthScore(c){
+  const days=daysSince(c.lastContacted);
+  const max=STAGE_FREQ[c.stage]||30;
+  if(days===9999)return 0;
+  return Math.max(0,Math.round((1-days/max)*100));
+}
+
+function healthStyle(score){
+  if(score>=60)return{bar:'hf-green',dot:'nd-green',text:'hs-green',label:'Healthy'};
+  if(score>=30)return{bar:'hf-amber',dot:'nd-amber',text:'hs-amber',label:'Cooling'};
+  return{bar:'hf-red',dot:'nd-red',text:'hs-red',label:'Overdue'};
+}
+
+function initials(n){return(n||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function avColor(n){return'av-'+((n||'').charCodeAt(0)%6);}
+
+function renderStats(){
+  const cs=state.contacts;
+  const overdue=cs.filter(c=>healthScore(c)<30&&c.lastContacted).length;
+  const active=cs.filter(c=>c.stage==='active').length;
+  const warm=cs.filter(c=>c.stage==='warm').length;
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-val">${cs.length}</div></div>
+    <div class="stat-card stat-active"><div class="stat-label">Active</div><div class="stat-val">${active}</div></div>
+    <div class="stat-card stat-warm"><div class="stat-label">Warm</div><div class="stat-val">${warm}</div></div>
+    <div class="stat-card stat-danger"><div class="stat-label">Needs attention</div><div class="stat-val">${overdue}</div><div class="stat-sub">overdue touchpoints</div></div>
+  `;
+}
+
+function renderPipeline(){
+  const counts={all:state.contacts.length};
+  Object.keys(STAGE_LABELS).forEach(s=>counts[s]=state.contacts.filter(c=>c.stage===s).length);
+  const stages=[{key:'all',label:'All'},...Object.entries(STAGE_LABELS).map(([k,v])=>({key:k,label:v}))];
+  const TYPE_FILTER_LABELS={'in-house':'In-house','law-firm':'Law firm','government':'Govt','other':'Other'};
+  const REL_FILTER_LABELS={'friend':'Friend / trust','colleague':'Colleague','acquaintance':'Acquaintance'};
+  const typeFilters=Object.entries(TYPE_FILTER_LABELS).filter(([k])=>state.contacts.some(c=>c.type===k));
+  const relFilters=Object.entries(REL_FILTER_LABELS).filter(([k])=>state.contacts.some(c=>c.rel===k));
+  const eventTags=[...new Set(state.contacts.map(c=>c.event).filter(Boolean))].sort();
+  document.getElementById('pipeline-bar').innerHTML=
+    stages.map(s=>`<button class="stage-pill${state.filter===s.key?' on':''}" onclick="setFilter('${s.key}')">${s.label}<span class="cnt">${counts[s.key]}</span></button>`).join('')+
+    (typeFilters.length?'<div style="width:1px;background:var(--border2);margin:0 4px;height:20px;align-self:center;"></div>'+typeFilters.map(([k,l])=>`<button class="stage-pill${state.typeFilter===k?' on':''}" onclick="setTypeFilter('${k}')">${l}</button>`).join(''):'') +
+    (relFilters.length?'<div style="width:1px;background:var(--border2);margin:0 4px;height:20px;align-self:center;"></div>'+relFilters.map(([k,l])=>`<button class="stage-pill${state.relFilter===k?' on':''}" onclick="setRelFilter('${k}')">${l}</button>`).join(''):'') +
+    (eventTags.length?'<div style="width:1px;background:var(--border2);margin:0 4px;height:20px;align-self:center;"></div>'+eventTags.map(e=>`<button class="stage-pill${state.eventFilter===e?' on':''}" onclick="setEventFilter(${JSON.stringify(e)})">${esc(e)}</button>`).join(''):'') +
+    '<div style="flex:1;"></div>';
+}
+
+function renderGrid(){
+  let cs=state.contacts;
+  if(state.filter!=='all')cs=cs.filter(c=>c.stage===state.filter);
+  if(state.typeFilter)cs=cs.filter(c=>c.type===state.typeFilter);
+  if(state.relFilter)cs=cs.filter(c=>c.rel===state.relFilter);
+  if(state.eventFilter)cs=cs.filter(c=>c.event===state.eventFilter);
+  if(state.locationFilter)cs=cs.filter(c=>(c.location||'').toLowerCase().includes(state.locationFilter.toLowerCase()));
+  if(state.search){
+    const q=state.search.toLowerCase();
+    cs=cs.filter(c=>[c.name,c.company,c.role,c.email,c.location,c.former,c.type,c.rel,c.origin].join(' ').toLowerCase().includes(q));
+  }
+  // sort
+  const REL_ORDER={friend:0,colleague:1,acquaintance:2,'':3};
+  const STAGE_ORDER={active:0,warm:1,new:2,outcome:3};
+  const sortBy=state.sortBy||'health';
+  cs=[...cs].sort((a,b)=>{
+    if(sortBy==='health')return healthScore(a)-healthScore(b);
+    if(sortBy==='name')return(a.name||'').localeCompare(b.name||'');
+    if(sortBy==='rel')return(REL_ORDER[a.rel]??3)-(REL_ORDER[b.rel]??3);
+    if(sortBy==='recent'){const da=daysSince(a.lastContacted),db=daysSince(b.lastContacted);return da-db;}
+    if(sortBy==='stage')return(STAGE_ORDER[a.stage]??4)-(STAGE_ORDER[b.stage]??4);
+    return 0;
+  });
+  const el=document.getElementById('contact-grid');
+  if(!cs.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-title">${state.contacts.length?'No contacts match that filter.':'No contacts yet.'}</div><p style="font-size:13px;margin-top:4px;">${state.contacts.length?'Try a different stage or search term.':'Hit "+ Add contact" or import a CSV to get started.'}</p></div>`;
+    return;
+  }
+  el.innerHTML=cs.map(c=>{
+    const score=healthScore(c);
+    const h=healthStyle(score);
+    const days=daysSince(c.lastContacted);
+    const daysText=!c.lastContacted?'Never contacted':days===0?'Contacted today':days===1?'Yesterday':`${days}d ago`;
+    const isOverdue=score<30&&c.lastContacted;
+    const TYPE_LABELS={'in-house':'In-house','law-firm':'Law firm','government':'Government','other':'Other'};
+    const TYPE_STYLE={'in-house':'background:#dbeafe;color:#1e40af;','law-firm':'background:#ede9fe;color:#5b21b6;','government':'background:#d1fae5;color:#065f46;','other':'background:#f1f5f9;color:#475569;'};
+    const REL_LABELS={'friend':'Friend / trust','colleague':'Colleague','acquaintance':'Acquaintance'};
+    const REL_STYLE={'friend':'background:#fef3c7;color:#92400e;','colleague':'background:#e8e4db;color:#4a5568;','acquaintance':'background:#f8f6f1;color:#8a95a3;'};
+    const typeBadge=c.type?`<span class="badge" style="${TYPE_STYLE[c.type]||''}">${TYPE_LABELS[c.type]||c.type}</span>`:'';
+    const relBadge=c.rel?`<span class="badge" style="${REL_STYLE[c.rel]||''}">${REL_LABELS[c.rel]||c.rel}</span>`:'';
+    const locationTag=c.location?`<span class="badge" style="background:#f8f6f1;color:var(--text3);">📍 ${esc(c.location)}</span>`:'';
+    return`<div class="contact-card${isOverdue?' overdue-card':''}" onclick="openEditModal(${JSON.stringify(c.id)})">
+      <div class="card-top">
+        <div class="av ${avColor(c.name)}">${initials(c.name)}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="contact-name">${esc(c.name)}</div>
+          <div class="contact-role">${[c.role,c.company].filter(Boolean).map(esc).join(' · ')}</div>
+          ${c.email?`<div class="contact-email">${esc(c.email)}</div>`:''}
+        </div>
+      </div>
+      <div class="card-badges">
+        <span class="badge badge-${c.stage}">${STAGE_LABELS[c.stage]}</span>
+        <span class="badge" style="background:#f8f6f1;color:var(--text3);">${h.label} · ${score}</span>
+        ${typeBadge}
+        ${relBadge}
+        ${locationTag}
+      </div>
+      <div class="health-row">
+        <div class="health-bar"><div class="health-fill ${h.bar}" style="width:${score}%"></div></div>
+        <span class="health-score-text ${h.text}">${score}</span>
+      </div>
+      <div class="card-meta">
+        <span>${daysText}</span>
+        <span>Touch every ${STAGE_FREQ[c.stage]}d</span>
+      </div>
+      ${c.former?`<div style="font-size:11px;color:var(--text3);margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--cream3);">Formerly: ${esc(c.former)}</div>`:''}
+      ${c.event?`<div style="font-size:11px;color:var(--text3);margin-top:.4rem;">Met at: ${esc(c.event)}</div>`:''}
+      ${c.referredBy?`<div style="font-size:11px;color:var(--text3);margin-top:.2rem;">Referred by: ${esc(c.referredBy)}</div>`:''}
+      ${c.intros?`<div style="font-size:11px;color:var(--text3);margin-top:.2rem;">Introduced to: ${esc(c.intros)}</div>`:''}
+      ${c.origin?`<div style="font-size:12px;color:var(--text2);margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--cream3);font-style:italic;">${esc(c.origin)}</div>`:''}
+      ${c.nextAction?`<div class="next-action"><span class="next-dot ${h.dot}"></span><span>${esc(c.nextAction)}</span></div>`:''}
+      ${c.notes?`<div class="hook-text" style="color:var(--text2);">${esc(c.notes)}</div>`:''}
+      ${c.hook&&!c.notes?`<div class="hook-text">${esc(c.hook)}</div>`:''}
+      <div style="margin-top:.75rem;padding-top:.65rem;border-top:1px solid var(--cream3);">
+        <button onclick="event.stopPropagation();openTouchpoint('${c.id}')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text2);">&#10003; Log touchpoint</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function renderApp(){renderStats();renderPipeline();renderGrid();renderLocDropdown();}
+
+function renderLocDropdown(){
+  const sel=document.getElementById('loc-filter');if(!sel)return;
+  // collect unique city tokens from locations
+  const cities=new Map();
+  state.contacts.forEach(c=>{
+    if(!c.location)return;
+    // split on comma and take the first meaningful token as city
+    const city=c.location.split(',')[0].trim();
+    if(city)cities.set(city.toLowerCase(),city);
+  });
+  const sorted=[...cities.values()].sort();
+  sel.innerHTML='<option value="">All locations</option>'+sorted.map(city=>`<option value="${esc(city)}"${state.locationFilter.toLowerCase()===city.toLowerCase()?' selected':''}>${esc(city)}</option>`).join('');
+}
+
+function setLocFilter(v){
+  state.locationFilter=v;
+  persist();
+  const banner=document.getElementById('trip-banner');
+  const label=document.getElementById('trip-label');
+  if(v){
+    banner.style.display='flex';
+    label.textContent=v+' contacts';
+  } else {
+    banner.style.display='none';
+  }
+  updateClearBtn();
+  renderGrid();
+}
+
+function clearLocFilter(){
+  state.locationFilter='';
+  const sel=document.getElementById('loc-filter');
+  if(sel)sel.value='';
+  document.getElementById('trip-banner').style.display='none';
+  persist();updateClearBtn();renderGrid();
+}
+
+function setSortBy(v){
+  state.sortBy=v;
+  persist();renderGrid();
+}
+
+function setFilter(f){state.filter=f;state.typeFilter='';state.relFilter='';state.eventFilter='';persist();updateClearBtn();renderPipeline();renderGrid();}
+function setTypeFilter(f){state.typeFilter=state.typeFilter===f?'':f;state.filter='all';state.relFilter='';state.eventFilter='';persist();updateClearBtn();renderPipeline();renderGrid();}
+function setRelFilter(f){state.relFilter=state.relFilter===f?'':f;state.filter='all';state.typeFilter='';state.eventFilter='';persist();updateClearBtn();renderPipeline();renderGrid();}
+function setEventFilter(f){state.eventFilter=state.eventFilter===f?'':f;state.filter='all';state.typeFilter='';state.relFilter='';persist();updateClearBtn();renderPipeline();renderGrid();}
+function setSearch(v){state.search=v;updateClearBtn();renderGrid();}
+
+function clearAllFilters(){
+  state.filter='all';state.typeFilter='';state.relFilter='';state.locationFilter='';state.eventFilter='';state.search='';
+  const sb=document.getElementById('search-box');if(sb)sb.value='';
+  const lf=document.getElementById('loc-filter');if(lf)lf.value='';
+  const so=document.getElementById('sort-by');if(so)so.value=state.sortBy||'health';
+  document.getElementById('trip-banner').style.display='none';
+  persist();renderPipeline();renderGrid();
+  document.getElementById('clear-filters-btn').style.display='none';
+}
+
+function updateClearBtn(){
+  const active=state.filter!=='all'||state.typeFilter||state.relFilter||state.locationFilter||state.search||state.eventFilter;
+  const btn=document.getElementById('clear-filters-btn');
+  if(btn)btn.style.display=active?'':'none';
+}
+
+// ─── TOUCHPOINT LOG ──────────────────────────────────────
+let tpContactId=null;
+function openTouchpoint(id){
+  tpContactId=id;
+  const c=state.contacts.find(x=>x.id==id);if(!c)return;
+  document.getElementById('tp-title').textContent='Log touchpoint · '+c.name;
+  document.getElementById('tp-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('tp-type').value='coffee';
+  document.getElementById('tp-note').value='';
+  openModal('touchpoint-modal');
+}
+function saveTouchpoint(){
+  const c=state.contacts.find(x=>x.id==tpContactId);if(!c)return;
+  const date=document.getElementById('tp-date').value;
+  const type=document.getElementById('tp-type').value;
+  const note=document.getElementById('tp-note').value.trim();
+  c.lastContacted=date;
+  if(note){
+    const entry=`[${date} · ${type}] ${note}`;
+    c.notes=c.notes?entry+'\n\n'+c.notes:entry;
+  }
+  persist();closeModal('touchpoint-modal');renderApp();
+  showToast('Touchpoint logged for '+c.name+'.');
+}
+
+// ─── GATHERINGS ──────────────────────────────────────────
+if(!state.gatherings)state.gatherings=[];
+
+function openNewGathering(){
+  document.getElementById('gm-title').textContent='New gathering';
+  document.getElementById('gm-type').value='lunch';
+  document.getElementById('gm-size').value='6–8';
+  document.getElementById('gm-purpose').value='';
+  document.getElementById('gm-location').value='';
+  document.getElementById('gm-mustinclude').value='';
+  document.getElementById('gm-context').value='';
+  document.getElementById('gm-btn-label').textContent='Generate guest list';
+  document.getElementById('gm-spinner').style.display='none';
+  openModal('gathering-modal');
+}
+
+async function generateGathering(){
+  if(!state.contacts.length){showToast('Add some contacts first.');return;}
+  const btn=document.getElementById('gm-gen-btn');
+  const spinner=document.getElementById('gm-spinner');
+  const lbl=document.getElementById('gm-btn-label');
+  btn.disabled=true;spinner.style.display='inline-block';lbl.textContent='Generating…';
+
+  const occasion=document.getElementById('gm-type').value;
+  const size=document.getElementById('gm-size').value;
+  const purpose=document.getElementById('gm-purpose').value.trim();
+  const location=document.getElementById('gm-location').value.trim();
+  const mustInclude=document.getElementById('gm-mustinclude').value.trim();
+  const context=document.getElementById('gm-context').value.trim();
+
+  const REL_LABELS={friend:'Friend / trust',colleague:'Colleague',acquaintance:'Acquaintance'};
+  const TYPE_LABELS={'in-house':'In-house','law-firm':'Law firm',government:'Government',other:'Other'};
+
+  const contactSummary=state.contacts.map(c=>({
+    name:c.name,role:c.role||'',company:c.company||'',
+    type:TYPE_LABELS[c.type]||'',rel:REL_LABELS[c.rel]||'',
+    location:c.location||'',interests:c.notes||'',
+    hook:c.hook||'',stage:c.stage,
+    healthScore:healthScore(c)
+  }));
+
+  const prompt=`You are an expert at curating intimate professional gatherings. Your job is to suggest a guest list for a gathering based on a host's contact list.
+
+OCCASION: ${occasion}
+IDEAL SIZE: ${size} guests
+PURPOSE / THEME: ${purpose||'General professional networking and connection'}
+LOCATION CONSTRAINT: ${location?'Only include contacts in or near '+location:'No location constraint'}
+MUST-INCLUDE: ${mustInclude||'None specified'}
+ADDITIONAL CONTEXT: ${context||'None'}
+
+HOST'S CONTACTS:
+${JSON.stringify(contactSummary,null,2)}
+
+PRINCIPLES FOR A GREAT GATHERING:
+1. Shared professional interests or complementary expertise around the theme — guests should have real things to talk about
+2. Geographic proximity — respect the location constraint if given
+3. Diversity of perspectives — a good mix of in-house, law firm, and government voices enriches the room
+4. Relationship strength — anchor the group around people the host knows reasonably well; avoid pairing total strangers without a bridge
+5. Appropriate seniority and dynamic — peer conversations work better than large gaps unless mentorship is the explicit point
+6. Avoid awkward pairings — competing firms, known conflicts, or people who would dominate the conversation
+
+Return ONLY valid JSON, no explanation, no markdown:
+{
+  "title": "A short evocative name for this gathering",
+  "guests": [
+    {
+      "name": "Full Name",
+      "role": "Role · Company",
+      "reason": "One sentence on why this person belongs in the room",
+      "spark": "One specific conversation topic or connection they bring"
+    }
+  ],
+  "why_this_group": "2–3 sentences on why this combination of people works — the dynamic, the chemistry, what the host can expect",
+  "host_tip": "One practical tip for the host on how to make this gathering successful"
+}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const raw=(data.content?.find(b=>b.type==='text')?.text||'').replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(raw);
+    const gathering={
+      id:Date.now(),occasion,size,purpose,location,
+      title:parsed.title||'Untitled gathering',
+      guests:parsed.guests||[],
+      whyThisGroup:parsed.why_this_group||'',
+      hostTip:parsed.host_tip||'',
+      status:'planned',
+      createdAt:new Date().toISOString().split('T')[0]
+    };
+    state.gatherings=state.gatherings||[];
+    state.gatherings.unshift(gathering);
+    persist();closeModal('gathering-modal');renderGatherings();
+    showToast('Guest list generated — "'+gathering.title+'"');
+  }catch(e){console.error(e);showToast('Could not generate — check your connection.');}
+  btn.disabled=false;spinner.style.display='none';lbl.textContent='Generate guest list';
+}
+
+function renderGatherings(){
+  const el=document.getElementById('gatherings-list');if(!el)return;
+  const gs=state.gatherings||[];
+  if(!gs.length){
+    el.innerHTML=`<div style="text-align:center;padding:4rem 1rem;color:var(--text3);"><div style="font-size:40px;margin-bottom:1rem">🍽</div><div style="font-size:16px;font-weight:500;color:var(--text2);margin-bottom:.5rem">No gatherings yet</div><div style="font-size:13px;line-height:1.6;max-width:380px;margin:0 auto;">Hit "+ New gathering" to generate an AI-curated guest list for a lunch, dinner, or happy hour.</div></div>`;
+    return;
+  }
+  el.innerHTML=gs.map(g=>`
+    <div class="contact-card" style="margin-bottom:10px;cursor:default;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:.75rem;">
+        <div>
+          <div class="contact-name">${esc(g.title)}</div>
+          <div class="contact-role">${g.occasion} · ${g.size} guests${g.location?' · '+esc(g.location):''}</div>
+          ${g.purpose?`<div style="font-size:12px;color:var(--text3);margin-top:2px;">${esc(g.purpose)}</div>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <div style="display:flex;border:1px solid var(--border2);border-radius:20px;overflow:hidden;font-size:11px;font-weight:500;">
+            <button onclick="setGatheringStatus(${g.id},'planned')" style="padding:3px 10px;border:none;cursor:pointer;transition:all .15s;${g.status!=='done'?'background:var(--navy,#0f1f3d);color:#fff;':'background:transparent;color:var(--text3);'}">Planned</button>
+            <button onclick="setGatheringStatus(${g.id},'done')" style="padding:3px 10px;border:none;border-left:1px solid var(--border2);cursor:pointer;transition:all .15s;${g.status==='done'?'background:#065f46;color:#fff;':'background:transparent;color:var(--text3);'}">Done</button>
+          </div>
+          <button onclick="deleteGathering(${g.id})" style="font-size:18px;color:var(--text3);background:none;border:none;cursor:pointer;padding:0;line-height:1;">×</button>
+        </div>
+      </div>
+      <div style="display:grid;gap:6px;margin-bottom:.75rem;">
+        ${(g.guests||[]).map(guest=>`
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:.5rem .75rem;background:var(--cream2);border-radius:var(--rsm);">
+            <div style="width:28px;height:28px;border-radius:50%;background:#dbeafe;color:#1e40af;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;">${initials(guest.name)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:500;">${esc(guest.name)}</div>
+              <div style="font-size:11px;color:var(--text3);">${esc(guest.role||'')}</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px;">${esc(guest.reason||'')}</div>
+              ${guest.spark?`<div style="font-size:11px;color:var(--text3);margin-top:2px;font-style:italic;">Spark: ${esc(guest.spark)}</div>`:''}
+            </div>
+          </div>`).join('')}
+      </div>
+      ${g.whyThisGroup?`<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:.5rem;">${esc(g.whyThisGroup)}</div>`:''}
+      ${g.hostTip?`<div style="font-size:12px;color:var(--text3);font-style:italic;padding:.5rem .75rem;background:var(--cream2);border-radius:var(--rsm);">Host tip: ${esc(g.hostTip)}</div>`:''}
+      <div style="font-size:11px;color:var(--text3);margin-top:.5rem;">${g.createdAt}</div>
+    </div>`).join('');
+}
+
+function setGatheringStatus(id,status){
+  const g=(state.gatherings||[]).find(x=>x.id===id);
+  if(g){g.status=status;persist();renderGatherings();}
+}
+
+function deleteGathering(id){
+  if(!confirm('Delete this gathering?'))return;
+  state.gatherings=(state.gatherings||[]).filter(g=>g.id!==id);
+  persist();renderGatherings();
+}
+
+// ─── CONTACT MODAL ──────────────────────────────────────
+function openAddModal(){
+  state.editId=null;
+  document.getElementById('cm-title').textContent='Add contact';
+  document.getElementById('cm-save').textContent='Save contact';
+  document.getElementById('cm-delete').style.display='none';
+  ['f-first','f-last','f-company','f-role','f-email','f-former','f-location','f-event','f-referredby','f-intros','f-origin','f-hook','f-next','f-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-stage').value='new';
+  document.getElementById('f-type').value='';
+  document.getElementById('f-rel').value='';
+  document.getElementById('f-date').value='';
+  openModal('contact-modal');
+}
+
+function openEditModal(id){
+  const c=state.contacts.find(x=>x.id==id);if(!c)return;
+  state.editId=id;
+  document.getElementById('cm-title').textContent='Edit contact';
+  document.getElementById('cm-save').textContent='Save changes';
+  document.getElementById('cm-delete').style.display='';
+  const nameParts=(c.name||'').split(' ');
+  document.getElementById('f-first').value=nameParts[0]||'';
+  document.getElementById('f-last').value=nameParts.slice(1).join(' ')||'';
+  document.getElementById('f-company').value=c.company||'';
+  document.getElementById('f-role').value=c.role||'';
+  document.getElementById('f-email').value=c.email||'';
+  document.getElementById('f-hook').value=c.hook||'';
+  document.getElementById('f-origin').value=c.origin||'';
+  document.getElementById('f-stage').value=c.stage||'new';
+  document.getElementById('f-type').value=c.type||'';
+  document.getElementById('f-rel').value=c.rel||'';
+  document.getElementById('f-location').value=c.location||'';
+  document.getElementById('f-event').value=c.event||'';
+  document.getElementById('f-referredby').value=c.referredBy||'';
+  document.getElementById('f-intros').value=c.intros||'';
+  document.getElementById('f-former').value=c.former||'';
+  document.getElementById('f-date').value=c.lastContacted||'';
+  document.getElementById('f-next').value=c.nextAction||'';
+  document.getElementById('f-notes').value=c.notes||'';
+  openModal('contact-modal');
+}
+
+function saveContact(){
+  const first=document.getElementById('f-first').value.trim();
+  if(!first){showToast('First name is required.');return;}
+  const name=[first,document.getElementById('f-last').value.trim()].filter(Boolean).join(' ');
+  const data={name,company:document.getElementById('f-company').value.trim(),role:document.getElementById('f-role').value.trim(),email:document.getElementById('f-email').value.trim(),type:document.getElementById('f-type').value,rel:document.getElementById('f-rel').value,location:document.getElementById('f-location').value.trim(),event:document.getElementById('f-event').value.trim(),referredBy:document.getElementById('f-referredby').value.trim(),intros:document.getElementById('f-intros').value.trim(),former:document.getElementById('f-former').value.trim(),origin:document.getElementById('f-origin').value.trim(),hook:document.getElementById('f-hook').value.trim(),stage:document.getElementById('f-stage').value,lastContacted:document.getElementById('f-date').value,nextAction:document.getElementById('f-next').value.trim(),notes:document.getElementById('f-notes').value.trim()};
+  if(state.editId!=null){
+    const i=state.contacts.findIndex(c=>c.id==state.editId);
+    if(i>-1)state.contacts[i]={...state.contacts[i],...data};
+    showToast('Contact updated.');
+  } else {
+    state.contacts.push({id:Date.now(),...data});
+    showToast('Contact added.');
+  }
+  persist();closeModal('contact-modal');renderApp();
+}
+
+function deleteContact(){
+  if(!confirm('Delete this contact? This cannot be undone.'))return;
+  state.contacts=state.contacts.filter(c=>c.id!=state.editId);
+  persist();closeModal('contact-modal');renderApp();showToast('Contact deleted.');
+}
+
+// ─── IMPORT MODAL ───────────────────────────────────────
+function openImportModal(){
+  pendingImport=[];
+  document.getElementById('import-confirm').disabled=true;
+  document.getElementById('import-count').textContent='';
+  ['preview-imp-li','preview-imp-gen'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+  openModal('import-modal');
+}
+
+function switchImportTab(key,btn){
+  document.querySelectorAll('.ist').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.source-panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('imp-'+(key==='li'?'li':'gen')).classList.add('on');
+}
+
+function confirmImport(){
+  if(!pendingImport.length)return;
+  const existing=new Set(state.contacts.map(c=>c.name.toLowerCase()));
+  const newOnes=pendingImport.filter(c=>!existing.has(c.name.toLowerCase()));
+  state.contacts.push(...newOnes);
+  persist();closeModal('import-modal');renderApp();
+  showToast(`Imported ${newOnes.length} contacts. ${pendingImport.length-newOnes.length} duplicates skipped.`);
+  pendingImport=[];
+}
+
+// ─── MODAL HELPERS ──────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal('contact-modal');closeModal('import-modal');}});
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ─── EXPORT / IMPORT DATA ───────────────────────────────
+function exportData(){
+  const data={
+    version:1,
+    exportedAt:new Date().toISOString(),
+    workspace:state.workspace,
+    contacts:state.contacts,
+    gatherings:state.gatherings||[],
+    plans:state.plans||{}
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='grove-backup-'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Data exported — save this file somewhere safe.');
+}
+
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.contacts)throw new Error('Invalid file');
+      if(!confirm(`This will replace your current data with ${data.contacts.length} contacts from the backup file. Continue?`)){
+        e.target.value='';return;
+      }
+      state.contacts=data.contacts||[];
+      state.gatherings=data.gatherings||[];
+      state.plans=data.plans||{};
+      if(data.workspace)state.workspace=data.workspace;
+      persist();
+      renderApp();
+      if(document.getElementById('gatherings-list'))renderGatherings();
+      document.getElementById('wlabel').textContent=state.workspace;
+      showToast('Data restored — '+state.contacts.length+' contacts loaded.');
+    }catch(err){
+      showToast('Could not read file — make sure it\'s a Grove backup.');
+    }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ─── INIT ───────────────────────────────────────────────
+hydrate();
+if(state.contacts.length>0||state._launched){
+  state._launched=true;
+  launchApp();
+} else {
+  // Check if we have pending import from onboarding
+}
+
+// Override obNext to handle pending import
+const _obNext=obNext;
+window.obNext=function(){
+  if(obStep===2&&state.pendingImport&&state.pendingImport.length){
+    state.contacts.push(...state.pendingImport);
+    state.pendingImport=[];
+  }
+  _obNext();
+};
+
+// ─── VIEW SWITCHING ──────────────────────────────────────
+function showView(name,btn){
+  document.getElementById('view-contacts') && (document.getElementById('view-contacts').style.display='none');
+  document.getElementById('view-plan') && (document.getElementById('view-plan').style.display='none');
+  document.getElementById('view-gatherings') && (document.getElementById('view-gatherings').style.display='none');
+  const target=document.getElementById('view-'+name);
+  if(target)target.style.display='block';
+  document.querySelectorAll('[id^=navtab-]').forEach(b=>{b.style.background='transparent';b.style.color='rgba(255,255,255,.8)';});
+  if(btn){btn.style.background='rgba(255,255,255,.15)';btn.style.color='#fff';}
+  if(name==='plan')renderPlanOutput();
+  if(name==='gatherings')renderGatherings();
+}
+
+// ─── WEEKLY PLAN ─────────────────────────────────────────
+if(!state.wkOffset)state.wkOffset=0;
+if(!state.plans)state.plans={};
+
+function getWeekStart(offset){
+  const d=new Date(),day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);
+  const mon=new Date(d.setDate(diff+(offset*7)));mon.setHours(0,0,0,0);return mon;
+}
+function fmtDate(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function weekKey(offset){return getWeekStart(offset).toISOString().split('T')[0];}
+
+function updateWeekLabel(){
+  const off=state.wkOffset||0,ws=getWeekStart(off),we=new Date(ws);we.setDate(we.getDate()+6);
+  const lbl=off===0?'This week':off===1?'Next week':off===-1?'Last week':`${fmtDate(ws)} – ${fmtDate(we)}`;
+  const el=document.getElementById('week-label');if(el)el.textContent=lbl;
+}
+function shiftWeek(dir){state.wkOffset=(state.wkOffset||0)+dir;updateWeekLabel();renderPlanOutput();save();}
+
+function renderPlanOutput(){
+  const key=weekKey(state.wkOffset||0),plan=state.plans[key],el=document.getElementById('plan-output');
+  if(!el)return;
+  if(!plan){
+    el.innerHTML=`<div style="text-align:center;padding:4rem 1rem;color:var(--color-text-secondary)"><div style="font-size:40px;margin-bottom:1rem">📅</div><div style="font-size:16px;font-weight:500;margin-bottom:.5rem">No plan generated yet</div><div style="font-size:13px;line-height:1.6;max-width:380px;margin:0 auto">Hit "Generate plan" to get an AI-curated mix of texts, coffees, lunches, and emails — prioritised by relationship health and pipeline stage.</div></div>`;
+    return;
+  }
+  const TLBL={text:'Text',coffee:'Coffee',lunch:'Lunch',email:'Email',linkedin:'LinkedIn',call:'Call'};
+  const counts={};plan.forEach(day=>(day.items||[]).forEach(it=>{counts[it.type]=(counts[it.type]||0)+1;}));
+  const total=Object.values(counts).reduce((a,b)=>a+b,0);
+  const done=plan.reduce((s,day)=>s+(day.items||[]).filter(it=>it.done).length,0);
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:1.25rem;">
+      <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.65rem .9rem;text-align:center;"><div style="font-size:20px;font-weight:500">${total}</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">Total</div></div>
+      <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.65rem .9rem;text-align:center;"><div style="font-size:20px;font-weight:500;color:#16a34a">${done}</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">Done</div></div>
+      ${Object.entries(counts).map(([t,n])=>`<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.65rem .9rem;text-align:center;"><div style="font-size:20px;font-weight:500">${n}</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">${TLBL[t]||t}</div></div>`).join('')}
+    </div>
+    <div style="display:grid;gap:10px;">
+      ${plan.map((day,di)=>`
+        <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;">
+          <div style="padding:.7rem 1.25rem;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:500;">${day.day}</span>
+            <span style="font-size:11px;color:var(--color-text-tertiary)">${day.date||''}</span>
+          </div>
+          <div>${(day.items||[]).length===0?`<div style="padding:.75rem 1.25rem;font-size:13px;color:var(--color-text-tertiary)">No outreach scheduled — rest day.</div>`:(day.items||[]).map((it,ii)=>`
+            <div class="plan-item${it.done?' item-done':''}">
+              <div class="pi-check${it.done?' is-done':''}" onclick="togglePlanItem('${key}',${di},${ii})">${it.done?'✓':''}</div>
+              <span class="type-badge type-${it.type||'email'}">${TLBL[it.type]||it.type}</span>
+              <div style="flex:1;min-width:0">
+                <div class="pi-name" style="font-size:14px;font-weight:500;line-height:1.3">${esc(it.contact)}</div>
+                ${it.role?`<div style="font-size:11px;color:var(--color-text-tertiary);margin-top:1px">${esc(it.role)}</div>`:''}
+                ${it.suggestion?`<div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5">${esc(it.suggestion)}</div>`:''}
+                ${it.reason?`<div style="font-size:11px;color:var(--color-text-tertiary);margin-top:3px;font-style:italic">${esc(it.reason)}</div>`:''}
+              </div>
+            </div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+    <div style="text-align:center;padding:1rem;margin-top:.5rem;">
+      <button onclick="clearPlan('${key}')" style="padding:6px 14px;border-radius:var(--border-radius-md);font-size:12px;border:0.5px solid var(--color-border-secondary);background:transparent;cursor:pointer;color:var(--color-text-secondary);">Clear &amp; regenerate</button>
+      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:.5rem;">Plans are saved per week and persist in your browser.</div>
+    </div>`;
+}
+
+function togglePlanItem(key,di,ii){if(!state.plans[key])return;state.plans[key][di].items[ii].done=!state.plans[key][di].items[ii].done;save();renderPlanOutput();}
+function clearPlan(key){delete state.plans[key];save();renderPlanOutput();}
+
+async function generatePlan(){
+  if(!state.contacts.length){showToast('Add some contacts first.');return;}
+  const btn=document.getElementById('gen-plan-btn'),spinner=document.getElementById('gen-spinner'),lbl=document.getElementById('gen-label');
+  btn.disabled=true;spinner.style.display='block';lbl.style.display='none';
+
+  const offset=state.wkOffset||0,key=weekKey(offset),ws=getWeekStart(offset);
+  const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const dates=DAYS.map((_,i)=>{const d=new Date(ws);d.setDate(d.getDate()+i);return fmtDate(d);});
+  const intensity=document.getElementById('plan-intensity').value;
+  const iguide={light:'3 to 4 total touchpoints',normal:'5 to 7 total touchpoints',intensive:'8 to 10 total touchpoints'};
+
+  const today2=new Date();
+  const dSince2=ds=>!ds?9999:Math.floor((today2-new Date(ds))/864e5);
+  const hScore2=c=>{const d=dSince2(c.lastContacted),m={new:60,warm:30,active:14,outcome:90}[c.stage]||30;return d===9999?0:Math.max(0,Math.round((1-d/m)*100));};
+
+  const contactSummary=state.contacts.map(c=>({
+    name:c.name,company:c.company||'',role:c.role||'',stage:c.stage,
+    healthScore:hScore2(c),daysSinceContact:c.lastContacted?dSince2(c.lastContacted):null,
+    hook:c.hook||'',nextAction:c.nextAction||''
+  })).sort((a,b)=>a.healthScore-b.healthScore);
+
+  const prompt=`You are a professional networking advisor. Generate a practical weekly outreach plan.
+
+WEEK: ${DAYS[0]} ${dates[0]} through ${DAYS[4]} ${dates[4]}
+INTENSITY: ${iguide[intensity]} spread across Mon–Fri
+
+CONTACTS (sorted lowest health score first = most overdue):
+${JSON.stringify(contactSummary,null,2)}
+
+OUTREACH TYPES: text, coffee, lunch, email, linkedin, call
+- text / linkedin: quick and low-effort — great for check-ins or warm contacts
+- email: structured follow-up or specific ask
+- coffee: 30-min casual meeting — good for active relationships
+- lunch: high-investment — reserve for key relationships worth deepening
+- call: good for time-sensitive or active contacts
+
+INSTRUCTIONS:
+1. Prioritise contacts with the lowest health scores (most overdue) and active/warm stages
+2. Match outreach type to relationship depth — don't suggest lunch for every contact
+3. Spread across Mon–Fri with max 3 items per day; lighter days are fine
+4. Write a specific 1-sentence suggestion per item referencing their role, hook, or next action
+5. Add a brief reason explaining why this week (e.g. "no contact in 6 weeks", "follow-up overdue")
+6. Only use contacts from the list — never invent contacts
+7. Leave some days empty if the intensity is light or normal
+
+Return ONLY valid JSON with no explanation and no markdown:
+{"days":[{"day":"Monday","date":"${dates[0]}","items":[{"contact":"Full Name","role":"Role · Company","type":"coffee","suggestion":"One specific sentence","reason":"Why this week"}]},{"day":"Tuesday","date":"${dates[1]}","items":[]},{"day":"Wednesday","date":"${dates[2]}","items":[]},{"day":"Thursday","date":"${dates[3]}","items":[]},{"day":"Friday","date":"${dates[4]}","items":[]}]}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=(data.content?.find(b=>b.type==='text')?.text||'').replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(raw);
+    state.plans[key]=(parsed.days||[]).map(d=>({...d,items:(d.items||[]).map(it=>({...it,done:false}))}));
+    save();renderPlanOutput();showToast('Plan generated for '+document.getElementById('week-label').textContent.toLowerCase()+'.');
+  }catch(e){console.error(e);showToast('Could not generate plan — check your connection.');}
+  btn.disabled=false;spinner.style.display='none';lbl.style.display='';
+}
+
+updateWeekLabel();
+</script>
+</body>
+</html>
